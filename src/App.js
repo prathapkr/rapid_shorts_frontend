@@ -180,7 +180,7 @@ const App = () => {
         <Box maxW="container.md" bg="lightblue" borderRadius="lg" boxShadow="0px 8px 26px 0px rgba(0, 0, 0, 0.1)" p={8} borderRadius="2xl" textAlign="center" zIndex="2" borderColor="brand.500" borderWidth="1px">
           <Heading mb={4} size="2xl" color="brand.500">Rapidshorts🚀</Heading>
           <Text mb={6} color="gray.800">
-            Create amazing short videos from tweets! Coming soon: AI support, template selection, and 40 different voices for Twitter automation.
+            Create amazing short videos from tweets! Coming soon: AI Images, multiple template selection, and 40+ different voices along with Twitter automation.
           </Text>
 
           
