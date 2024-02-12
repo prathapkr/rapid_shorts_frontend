@@ -279,19 +279,6 @@ const App = () => {
                 <source src={videoUrl} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
-              <Button
-                mt={2}
-                onClick={() => {
-                  const a = document.createElement('a');
-                  a.href = videoUrl;
-                  a.download = 'generated_short.mp4';
-                  a.click();
-                }}
-                size="sm"
-                colorScheme="blue"
-              >
-                Download Video
-              </Button>
             </Box>
           ) : (
             loading ? (
