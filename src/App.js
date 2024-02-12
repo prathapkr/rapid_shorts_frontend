@@ -247,6 +247,50 @@ const App = () => {
               onChange={handleLogoChange}
               style={{ width: '30%', padding: '10px' }}
             />
+          </>
+        );
+      default:
+        return (
+          <>
+            <Text fontSize="md" color="gray.600" mb={2}>
+              Preparing to generate your video...
+            </Text>
+            {showGenerationNote && (
+              <Box p={4} bg="blue.100" borderRadius="md" mt={4}>
+                <Text fontSize="lg" color="blue.800">
+                  It may take more than a minute, please be patient.
+                </Text>
+              </Box>
+            )}
+          </>
+        );
+    }
+  };
+
+  return (
+    <ChakraProvider theme={theme}>
+      <Flex direction="column" alignItems="center" justifyContent="center" minH="100vh" p={4} backgroundSize="cover" position="relative" bgGradient="linear(to-t, #FF0080, #00FFFF)">
+        <Box maxW="container.md" bg="lightblue" borderRadius="lg" boxShadow="0px 8px 26px 0px rgba(0, 0, 0, 0.1)" p={8} borderRadius="2xl" textAlign="center" zIndex="2" borderColor="brand.500" borderWidth="1px">
+          <Heading mb={4} size="2xl" color="brand.500">Rapidshorts🚀</Heading>
+          <Text mb={6} color="gray.800">
+            Create amazing short videos from tweets! Coming soon: AI Images, multiple template selection, and 40+ different voices along with Twitter automation.
+          </Text>
+
+          
+          {renderStepContent()}
+          {currentStep === 3? (
+            
+          <Text fontSize="sm" color="gray.500" mt={2}>
+          {prompt.length}/512 characters
+        </Text>):null}
+          {currentStep < 6 ? (
+            <Button onClick={handleNextStep} colorScheme="teal" mt={4}>Next</Button>
+          ) : (
+            <Button onClick={handleGenerateVideo} isLoading={loading} colorScheme="pink" mt={4}>
+              {loading ? 'Generating Video...' : 'Generate Video'}
+            </Button>
+          )}
+          {videoUrl && (
           </Flex>
 
           <Button
