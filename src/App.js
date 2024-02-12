@@ -157,7 +157,7 @@ const App = () => {
             Rapidshorts🚀
           </Heading>
           <Text mb={4} fontSize="lg" color="gray.700">
-            Create amazing short videos from tweets or any text! Enter your text, select options, and click "Generate Video".
+            Create amazing short videos from tweets or any text! Enter your text, select options, and click "Generate Video" under 2 mins.
           </Text>
 
           <Textarea
