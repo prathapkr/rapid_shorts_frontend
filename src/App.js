@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import backgroundImage from './bgimg.jpeg';
+import backgroundImage from './back1.jpeg';
 import defaultImage from './xlogo.jpg';
 
 import {
@@ -71,7 +71,7 @@ const App = () => {
   const generateVideo = async () => {
     try {
       setLoading(true);
-      // Clear the previous videoUrl
+      // Clear the videoUrl and hide the video container
       setVideoUrl('');
       
       const formData = new FormData();
@@ -90,7 +90,7 @@ const App = () => {
       } else {
         formData.append('logo', defaultImageFile);
       }
-  
+
       const response = await axios.post(
         'https://rapidshortsfeb1-h67lx7up6a-uc.a.run.app/generate_video/',
         formData,
@@ -101,7 +101,7 @@ const App = () => {
           },
         }
       );
-  
+
       if (response.status === 200) {
         const videoUrl = response.data.video_blob_name;
         setVideoUrl(videoUrl);
@@ -121,8 +121,6 @@ const App = () => {
       setLoading(false);
     }
   };
-  
-  
 
   return (
     <ChakraProvider>
@@ -148,11 +146,11 @@ const App = () => {
           transition="transform 0.3s ease-in-out"
           _hover={{ transform: 'rotate(0deg)' }}
         >
-          <Heading mb={4} size="2xl" color="blue.500" textShadow="2px 2px 4px #000" bgGradient="linear(to-r, #FF1493, #00FFFF)" bgClip="text">
+          <Heading mb={4} size="2xl" color="blue.500" textShadow="2px 2px 4px #000">
             Rapidshorts🚀
           </Heading>
           <Text mb={4} fontSize="lg" color="gray.700">
-            Create amazing short videos from tweets or any text! Copy-paste any text or tweet, enter name and username, select colors, voice, and font style, optionally upload a profile pic and hit generate. Your video will be ready in less than 2 minutes. try different Templates and colors
+            Create amazing short videos from tweets or any text!
           </Text>
 
           <Textarea
@@ -237,7 +235,7 @@ const App = () => {
           <Flex justifyContent="space-between" mb={4}>
             <input
               type="number"
-              placeholder="Bg Template no. (0-7)"
+              placeholder="Template no. (0-7)"
               onChange={handleTempChange}
               style={{ width: '30%', padding: '10px' }}
             />
@@ -247,50 +245,6 @@ const App = () => {
               onChange={handleLogoChange}
               style={{ width: '30%', padding: '10px' }}
             />
-          </>
-        );
-      default:
-        return (
-          <>
-            <Text fontSize="md" color="gray.600" mb={2}>
-              Preparing to generate your video...
-            </Text>
-            {showGenerationNote && (
-              <Box p={4} bg="blue.100" borderRadius="md" mt={4}>
-                <Text fontSize="lg" color="blue.800">
-                  It may take more than a minute, please be patient.
-                </Text>
-              </Box>
-            )}
-          </>
-        );
-    }
-  };
-
-  return (
-    <ChakraProvider theme={theme}>
-      <Flex direction="column" alignItems="center" justifyContent="center" minH="100vh" p={4} backgroundSize="cover" position="relative" bgGradient="linear(to-t, #FF0080, #00FFFF)">
-        <Box maxW="container.md" bg="lightblue" borderRadius="lg" boxShadow="0px 8px 26px 0px rgba(0, 0, 0, 0.1)" p={8} borderRadius="2xl" textAlign="center" zIndex="2" borderColor="brand.500" borderWidth="1px">
-          <Heading mb={4} size="2xl" color="brand.500">Rapidshorts🚀</Heading>
-          <Text mb={6} color="gray.800">
-            Create amazing short videos from tweets! Coming soon: AI Images, multiple template selection, and 40+ different voices along with Twitter automation.
-          </Text>
-
-          
-          {renderStepContent()}
-          {currentStep === 3? (
-            
-          <Text fontSize="sm" color="gray.500" mt={2}>
-          {prompt.length}/512 characters
-        </Text>):null}
-          {currentStep < 6 ? (
-            <Button onClick={handleNextStep} colorScheme="teal" mt={4}>Next</Button>
-          ) : (
-            <Button onClick={handleGenerateVideo} isLoading={loading} colorScheme="pink" mt={4}>
-              {loading ? 'Generating Video...' : 'Generate Video'}
-            </Button>
-          )}
-          {videoUrl && (
           </Flex>
 
           <Button
@@ -306,7 +260,7 @@ const App = () => {
           >
             Generate Video
           </Button>
-          {videoUrl ? (
+          {!loading && videoUrl ? (
             <Box mt={6}>
               <video
                 controls
@@ -317,7 +271,19 @@ const App = () => {
                 <source src={videoUrl} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
-
+              <Button
+                mt={2}
+                onClick={() => {
+                  const a = document.createElement('a');
+                  a.href = videoUrl;
+                  a.download = 'generated_short.mp4';
+                  a.click();
+                }}
+                size="sm"
+                colorScheme="blue"
+              >
+                Download Video
+              </Button>
             </Box>
           ) : (
             loading ? (
