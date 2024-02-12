@@ -1,104 +1,115 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import backgroundImage from './bgimg.jpeg';
+import defaultImage from './xlogo.jpg';
+
 import {
   ChakraProvider,
-  Box,
-  Button,
-  Flex,
   Heading,
   Text,
+  Button,
+  VStack,
+  Flex,
+  Box,
   useToast,
-  Input,
-  Select,
-  extendTheme,
-  Textarea,
 } from '@chakra-ui/react';
-
-const theme = extendTheme({
-  colors: {
-    brand: {
-      500: '#FF0080',
-      600: '#FFA500',
-      700: '#00FFFF',
-    },
-  },
-  components: {
-    Button: {
-      baseStyle: {
-        fontWeight: 'bold',
-      },
-      variants: {
-        solid: (props) => ({
-          bg: 'brand.500',
-          color: 'white',
-          _hover: {
-            bg: 'brand.600',
-          },
-        }),
-      },
-    },
-    Text: {
-      baseStyle: {
-        color: 'gray.700',
-      },
-    },
-    Box: {
-      baseStyle: {
-        p: 4,
-        bg: 'red.100',
-        borderRadius: 'md',
-        color: 'red.800',
-      },
-    },
-  },
-});
+import { Textarea } from '@chakra-ui/react';
 
 const App = () => {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [userName, setUserName] = useState('');
-  const [userTag, setUserTag] = useState('');
-  const [prompt, setPrompt] = useState('');
-  const [voice, setVoice] = useState('');
-  const [userPhoto, setUserPhoto] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [videoUrl, setVideoUrl] = useState('');
-  const [showGenerationNote, setShowGenerationNote] = useState(false);
+  const [prompt, setPrompt] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [profileName, setProfileName] = useState('');
+  const [username, setUsername] = useState('');
+  const [color, setColor] = useState('');
+  const [bgColor, setBgColor] = useState('');
+  const [font, setFont] = useState('');
+  const [voiceName, setVoiceName] = useState('');
+  const [temp, setTemp] = useState(0); // Default to 0
+  const [logo, setLogo] = useState(null);
   const toast = useToast();
 
-  const handleNextStep = () => {
-    setCurrentStep((prevStep) => prevStep + 1);
+  const handleInputChange = (e) => {
+    const inputText = e.target.value.slice(0, 256); // Limit character count to 256
+    setPrompt(inputText);
   };
 
-  const handleGenerateVideo = async () => {
-    setLoading(true);
-    setShowGenerationNote(true);
+  const handleProfileNameChange = (e) => {
+    setProfileName(e.target.value);
+  };
+
+  const handleUsernameChange = (e) => {
+    setUsername(e.target.value);
+  };
+
+  const handleColorChange = (e) => {
+    setColor(e.target.value);
+  };
+
+  const handleBgColorChange = (e) => {
+    setBgColor(e.target.value);
+  };
+
+  const handleFontChange = (e) => {
+    setFont(e.target.value);
+  };
+
+  const handleVoiceNameChange = (e) => {
+    setVoiceName(e.target.value);
+  };
+
+  const handleTempChange = (e) => {
+    setTemp(parseInt(e.target.value));
+  };
+
+  const handleLogoChange = (e) => {
+    setLogo(e.target.files[0]);
+  };
+
+  const defaultImageFile = new File([defaultImage], 'xlogo.jpg', { type: 'image/jpeg' });
+
+  const generateVideo = async () => {
     try {
+      setLoading(true);
+      // Clear the previous videoUrl
+      setVideoUrl('');
+      
       const formData = new FormData();
-      formData.append('user_name', userName);
-      formData.append('user_tag', userTag);
-      formData.append('tweet_text', prompt);
-      formData.append('voice_type', voice);
-      if (userPhoto) {
-        formData.append('user_photo', userPhoto);
-      }
-
-      const response = await axios.post(
-        'https://myrapidshorts-h67lx7up6a-uc.a.run.app/generate_video/',
-        formData,
-      );
-
-      if (response.status === 200) {
-        setVideoUrl(response.data.video_url);
+      formData.append('profile_name', profileName);
+      formData.append('username', username);
+      formData.append('color', color);
+      formData.append('bgcolor', bgColor);
+      formData.append('font', font);
+      formData.append('voice_name', voiceName);
+      formData.append('temp', temp);
+      formData.append('text', prompt);
+      
+      // Check if logo is provided, if not, use defaultImageFile
+      if (logo) {
+        formData.append('logo', logo);
       } else {
-        toast({
-          title: 'Error',
-          description: 'Invalid video response from the API',
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        });
+        formData.append('logo', defaultImageFile);
+      }
+  
+      const response = await axios.post(
+        'https://rapidshortsfeb1-h67lx7up6a-uc.a.run.app/generate_video/',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'accept': 'application/json',
+          },
+        }
+      );
+  
+      if (response.status === 200) {
+        const videoUrl = response.data.video_blob_name;
+        setVideoUrl(videoUrl);
+      } else {
+        console.error('Invalid video response from the API');
       }
     } catch (error) {
+      console.error('Error generating video:', error);
       toast({
         title: 'Error',
         description: 'Failed to generate video. Please try again later.',
@@ -108,102 +119,166 @@ const App = () => {
       });
     } finally {
       setLoading(false);
-      setShowGenerationNote(false); // Hide the generation note after the process is complete or fails
     }
   };
-
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        return <Input placeholder="User Name" value={userName} onChange={(e) => setUserName(e.target.value)} size="lg" />;
-      case 2:
-        return <Input placeholder="User Tag (@example)" value={userTag} onChange={(e) => setUserTag(e.target.value)} size="lg" />;
-      case 3:
-        return (
-          <Textarea
-            placeholder="Enter tweet text here"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            size="lg"
-            maxLength={512}
-            height="150px"
-          />
-        
-        );
-      case 4:
-        return (
-          <Select placeholder="Select voice type" value={voice} onChange={(e) => setVoice(e.target.value)} size="lg">
-            <option value="alloy">Alloy</option>
-            <option value="echo">Echo</option>
-            <option value="fable">Fable</option>
-            <option value="onyx">Onyx</option>
-            <option value="nova">Nova</option>
-            <option value="shimmer">Shimmer</option>
-          </Select>
-        );
-      case 5:
-        return (
-          <>
-            <Text fontSize="md" color="gray.600" mb={2}>
-
-            Upload a user photo:
-            </Text>
-            <Input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setUserPhoto(e.target.files[0])}
-              size="lg"
-            />
-          </>
-        );
-      default:
-        return (
-          <>
-            <Text fontSize="md" color="gray.600" mb={2}>
-              Preparing to generate your video...
-            </Text>
-            {showGenerationNote && (
-              <Box p={4} bg="blue.100" borderRadius="md" mt={4}>
-                <Text fontSize="lg" color="blue.800">
-                  It may take more than a minute, please be patient.
-                </Text>
-              </Box>
-            )}
-          </>
-        );
-    }
-  };
+  
+  
 
   return (
-    <ChakraProvider theme={theme}>
-      <Flex direction="column" alignItems="center" justifyContent="center" minH="100vh" p={4} backgroundSize="cover" position="relative" bgGradient="linear(to-t, #FF0080, #00FFFF)">
-        <Box maxW="container.md" bg="lightblue" borderRadius="lg" boxShadow="0px 8px 26px 0px rgba(0, 0, 0, 0.1)" p={8} borderRadius="2xl" textAlign="center" zIndex="2" borderColor="brand.500" borderWidth="1px">
-          <Heading mb={4} size="2xl" color="brand.500">Rapidshorts🚀</Heading>
-          <Text mb={6} color="gray.800">
-            Create amazing short videos from tweets! Coming soon: AI support, template selection, and 40 different voices for Twitter automation.
+    <ChakraProvider>
+      <Flex
+        direction="column"
+        alignItems="center"
+        justifyContent="center"
+        minH="100vh"
+        p={4}
+        backgroundImage={`url(${backgroundImage})`}
+        backgroundSize="cover"
+        position="relative"
+      >
+        <Box
+          maxW="container.md"
+          bg="rgba(255, 255, 255, 0.9)"
+          borderRadius="lg"
+          boxShadow="lg"
+          p={8}
+          borderRadius="2xl"
+          textAlign="center"
+          zIndex="2"
+          transition="transform 0.3s ease-in-out"
+          _hover={{ transform: 'rotate(0deg)' }}
+        >
+          <Heading mb={4} size="2xl" color="blue.500" textShadow="2px 2px 4px #000" bgGradient="linear(to-r, #FF1493, #00FFFF)" bgClip="text">
+            Rapidshorts🚀
+          </Heading>
+          <Text mb={4} fontSize="lg" color="gray.700">
+            Create amazing short videos from tweets or any text! Copy-paste any text or tweet, enter name and username, select colors, voice, and font style, optionally upload a profile pic and hit generate. Your video will be ready in less than 2 minutes. try different Templates and colors
           </Text>
 
-          
-          {renderStepContent()}
-          {currentStep === 3? (
-            
-          <Text fontSize="sm" color="gray.500" mt={2}>
-          {prompt.length}/512 characters
-        </Text>):null}
-          {currentStep < 6 ? (
-            <Button onClick={handleNextStep} colorScheme="teal" mt={4}>Next</Button>
-          ) : (
-            <Button onClick={handleGenerateVideo} isLoading={loading} colorScheme="pink" mt={4}>
-              {loading ? 'Generating Video...' : 'Generate Video'}
-            </Button>
-          )}
-          {videoUrl && (
+          <Textarea
+            value={prompt}
+            onChange={handleInputChange}
+            placeholder="Enter text to generate video"
+            size="lg"
+            maxLength={256}
+            bg="white"
+            color="gray.800"
+            borderRadius="md"
+            p={4}
+            fontSize="lg"
+            style={{ height: 'auto', minHeight: '150px' }}
+          />
+          <Box
+            position="absolute"
+            bottom="5px"
+            right="10px"
+            fontSize="sm"
+            color="gray.500"
+          >
+            Character Count: {prompt.length}/256
+          </Box>
+
+          <Flex justifyContent="space-between" mb={4}>
+            <input
+              type="text"
+              placeholder="Profile Name"
+              onChange={handleProfileNameChange}
+              style={{ width: '30%', padding: '10px' }}
+            />
+            <input
+              type="text"
+              placeholder="Username"
+              onChange={handleUsernameChange}
+              style={{ width: '30%', padding: '10px' }}
+            />
+            <input
+              type="text"
+              placeholder="Font Color"
+              onChange={handleColorChange}
+              style={{ width: '30%', padding: '10px' }}
+            />
+          </Flex>
+
+          <Flex justifyContent="space-between" mb={4}>
+            <input
+              type="text"
+              placeholder="Font Bg Color"
+              onChange={handleBgColorChange}
+              style={{ width: '30%', padding: '10px' }}
+            />
+            <select
+              onChange={handleFontChange}
+              style={{ width: '30%', padding: '10px' }}
+            >
+              <option value="">Select Font Style</option>
+              <option value="Times-Bold">Times-Bold</option>
+              <option value="Times-Bold-Italic">Times-Bold-Italic</option>
+              <option value="Times-Italic">Times-Italic</option>
+              <option value="Times-New-Roman">Times-New-Roman</option>
+              <option value="Times-New-Roman-Bold">Times-New-Roman-Bold</option>
+              <option value="Times-New-Roman-Bold-Italic">Times-New-Roman-Bold-Italic</option>
+              <option value="Times-New-Roman-Italic">Times-New-Roman-Italic</option>
+              <option value="Times-Roman">Times-Roman</option>
+            </select>
+            <select
+              onChange={handleVoiceNameChange}
+              style={{ width: '30%', padding: '10px' }}
+            >
+              <option value="">Select Voice Type</option>
+              <option value="alloy">Alloy</option>
+              <option value="echo">Echo</option>
+              <option value="fable">Fable</option>
+              <option value="onyx">Onyx</option>
+              <option value="nova">Nova</option>
+              <option value="shimmer">Shimmer</option>
+            </select>
+          </Flex>
+
+          <Flex justifyContent="space-between" mb={4}>
+            <input
+              type="number"
+              placeholder="Bg Template no. (0-7)"
+              onChange={handleTempChange}
+              style={{ width: '30%', padding: '10px' }}
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleLogoChange}
+              style={{ width: '30%', padding: '10px' }}
+            />
+          </Flex>
+
+          <Button
+            onClick={generateVideo}
+            isLoading={loading}
+            loadingText="Generating takes up to a min..."
+            size="lg"
+            bgGradient="linear(to-r, #FF1493, #00FFFF)"
+            color="white"
+            borderRadius="md"
+            _hover={{ bgGradient: 'linear(to-r, #00FFFF, #FF1493)' }}
+            mt={4}
+          >
+            Generate Video
+          </Button>
+          {videoUrl ? (
             <Box mt={6}>
-              <video controls width="60%">
+              <video
+                controls
+                width="60%"
+                height="auto"
+                style={{ maxWidth: '100%' }}
+              >
                 <source src={videoUrl} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
+
             </Box>
+          ) : (
+            loading ? (
+              <Text>Loading...</Text>
+            ) : null
           )}
         </Box>
       </Flex>
@@ -212,5 +287,3 @@ const App = () => {
 };
 
 export default App;
-
-             
