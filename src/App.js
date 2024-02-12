@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import backgroundImage from './back1.jpeg';
+import backgroundImage from './bgimg.jpeg';
 import defaultImage from './xlogo.jpg';
 
 import {
@@ -146,11 +146,18 @@ const App = () => {
           transition="transform 0.3s ease-in-out"
           _hover={{ transform: 'rotate(0deg)' }}
         >
-          <Heading mb={4} size="2xl" color="blue.500" textShadow="2px 2px 4px #000">
+          <Heading
+            mb={4}
+            size="2xl"
+            // Use gradient for title color
+            bgGradient="linear(to-l, #7928CA,#FF0080)"
+            bgClip="text"
+            textShadow="2px 2px 4px #000"
+          >
             Rapidshorts🚀
           </Heading>
           <Text mb={4} fontSize="lg" color="gray.700">
-            Create amazing short videos from tweets or any text!
+            Create amazing short videos from tweets or any text! Enter your text, select options, and click "Generate Video".
           </Text>
 
           <Textarea
@@ -171,7 +178,8 @@ const App = () => {
             bottom="5px"
             right="10px"
             fontSize="sm"
-            color="gray.500"
+            // Set br tag color to white
+            color="white"
           >
             Character Count: {prompt.length}/256
           </Box>
@@ -290,6 +298,27 @@ const App = () => {
               <Text>Loading...</Text>
             ) : null
           )}
+        </Box>
+        <Box mt={6} textAlign="left" fontSize="sm" color='white'>
+          <Text>
+            Template Info:
+            <br />
+            0: Plain white background (bg_white)
+            <br />
+            1: Blue background (bg_blue)
+            <br />
+            2: Blue gradient background (bg_bluegrad)
+            <br />
+            3: Dark gradient background (bg_darkgrad)
+            <br />
+            4: Dark gradient background (bg_darkgrad)
+            <br />
+            5: Gradient background (bg_gradainat normal)
+            <br />
+            6: Olive background (bg_olive)
+            <br />
+            7: Purple background (bg_purple)
+          </Text>
         </Box>
       </Flex>
     </ChakraProvider>
