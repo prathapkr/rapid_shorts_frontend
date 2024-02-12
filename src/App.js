@@ -193,7 +193,7 @@ const App = () => {
             />
             <input
               type="text"
-              placeholder="Username"
+              placeholder="@Username"
               onChange={handleUsernameChange}
               style={{ width: '30%', padding: '10px' }}
             />
